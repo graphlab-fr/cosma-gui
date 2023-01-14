@@ -7,7 +7,6 @@ const {
 const fs = require('fs/promises');
 
 const Project = require('../models/project')
-    , Display = require('../models/display')
     , lang = require('../core/models/lang');
 
 ipcMain.on("get-history-records", (event) => {
@@ -25,12 +24,9 @@ ipcMain.on("history-action", (event, recordId, description, action) => {
 
         case 'open-cosmoscope':
             path = Project.getCurrent().history.get(recordId).path;
-            let mainWindow = Display.getWindow('main');
-            if (mainWindow === undefined) {
-                require('../views/cosmoscope').open();
-                mainWindow = Display.getWindow('main');
-            }
-            mainWindow.webContents.loadFile(path);
+            const { open: openCosmoscope } = require('../views/cosmoscope');
+            const winCosmoscope = openCosmoscope();
+            winCosmoscope.webContents.loadFile(path);
             break;
 
         case 'open-finder':
@@ -44,12 +40,10 @@ ipcMain.on("history-action", (event, recordId, description, action) => {
                 return;
             }
 
-            require('../views/report').open();
-            let reportWindow = Display.getWindow('report');
-            if (reportWindow) {
-                reportWindow.loadFile(pathReport);
-                reportWindow.once('ready-to-show', () => { reportWindow.show(); });
-            }
+            const { open: openReport } = require('../views/report');
+            const winReport = openReport();
+            winReport.loadFile(pathReport);
+            winReport.once('ready-to-show', () => winReport.show());
             break;
 
         case 'delete':
@@ -77,9 +71,9 @@ ipcMain.on("history-action", (event, recordId, description, action) => {
     }
 
     function resetHistoryWindow() {
-        window = Display.getWindow('history');
-        if (window) {
-            window.webContents.send("reset-history");
+        const { win: winHistory } = require('../views/history');
+        if (winHistory) {
+            winHistory.webContents.send("reset-history");
         }
     }
 

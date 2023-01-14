@@ -8,18 +8,18 @@ const Display = require('../../models/display');
 
 const lang = require('../../core/models/lang');
 
-let window;
-
 const pageName = 'report';
 
 module.exports = {
+    win: undefined,
+
     open: function () {
-        if (window !== undefined) {
-            window.focus();
+        if (this.win !== undefined) {
+            this.win.focus();
             return;
         }
 
-        window = new BrowserWindow(
+        this.win = new BrowserWindow(
             Object.assign(Display.getBaseSpecs('form'), {
                 title: `${lang.getFor(lang.i.windows[pageName].title)}`,
                 parent: Display.getWindow('history'),
@@ -31,10 +31,12 @@ module.exports = {
             })
         );
 
-        Display.storeSpecs(pageName, window);
+        Display.storeSpecs(pageName, this.win);
 
-        window.once('closed', () => {
-            window = undefined;
+        this.win.once('closed', () => {
+            this.win = undefined;
         });
+
+        return this.win;
     }
 }

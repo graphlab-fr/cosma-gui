@@ -9,8 +9,7 @@ const {
 const Cosmoscope = require('../core/models/cosmoscope')
     , Template = require('../core/models/template');
 
-const Display = require('../models/display')
-    , ProjectConfig = require('../models/project-config');
+const ProjectConfig = require('../models/project-config');
 
 ipcMain.on("get-export-options", (event) => {
     const config = new ProjectConfig();
@@ -45,8 +44,8 @@ ipcMain.on("export-cosmoscope", async (event, templateParams) => {
         export_target: exportPath
     } = config.opts;
 
-    const window = Display.getWindow('export');
-    if (!window) { return; }
+    const { win: winExport } = require('../views/export');
+    if (!winExport) { return; }
 
     templateParams = {
         citeproc: (config.canCiteproc() === true && templateParams['citeproc'] === true),
@@ -74,7 +73,7 @@ ipcMain.on("export-cosmoscope", async (event, templateParams) => {
     const { html } = new Template(graph, ['publish', ...templateParams]);
 
     fs.writeFile(path.join(exportPath, 'cosmoscope.html'), html, 'utf-8', (err) => {
-        window.webContents.send("export-result", {
+        winExport.webContents.send("export-result", {
             isOk: err === null,
             message: err
         });

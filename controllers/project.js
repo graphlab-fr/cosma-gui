@@ -8,8 +8,7 @@ const {
 const lang = require('../core/models/lang');
 
 const Project = require('../models/project')
-    , ProjectConfig =  require('../models/project-config')
-    , Display = require('../models/display');
+    , ProjectConfig =  require('../models/project-config');
 
 ipcMain.on("get-project-list", (event) => {
     event.returnValue = Project.list;
@@ -45,8 +44,8 @@ ipcMain.on("open-project", (event, index) => {
         Project.current = index;
         const unixDate = new Date().getTime() / 1000;
         Project.getCurrent().lastOpenDate = unixDate;
-        const mainIsOpen = Display.getWindow('main') !== undefined;
-        if (mainIsOpen) {
+        const { win: winCosmoscope } = require('../views/cosmoscope');
+        if (winCosmoscope) {
             require('../controllers/cosmoscope')(undefined, true);
         } else {
             require('../views/cosmoscope').open();
@@ -56,21 +55,21 @@ ipcMain.on("open-project", (event, index) => {
         event.returnValue = { isOk: false };
     }
 
-    let windowForSend = Display.getWindow('export');
-    if (windowForSend) {
-        windowForSend.webContents.send("config-change");
+    const { win: winExport } = require('../views/export');
+    if (winExport) {
+        winExport.webContents.send("config-change");
     }
-    windowForSend = Display.getWindow('record');
-    if (windowForSend) {
-        windowForSend.webContents.send("config-change");
+    const { win: winRecord } = require('../views/record');
+    if (winRecord) {
+        winRecord.webContents.send("config-change");
     }
-    windowForSend = Display.getWindow('history');
-    if (windowForSend) {
-        windowForSend.webContents.send("reset-history");
+    const { win: winHistory } = require('../views/history');
+    if (winHistory) {
+        winHistory.webContents.send("reset-history");
     }
-    windowForSend = Display.getWindow('config');
-    if (windowForSend) {
-        windowForSend.webContents.send("reset-config");
+    const { win: winConfig } = require('../views/config');
+    if (winConfig) {
+        winConfig.webContents.send("reset-config");
     }
 });
 
@@ -123,10 +122,10 @@ ipcMain.on("add-new-project", async (event, opts) => {
     Project.current = newProjectIndex;
 
     event.reply('new-project-result', { isOk: true });
-    const mainIsOpen = Display.getWindow('main') !== undefined;
-    let windowForSend = Display.getWindow('projects');
-    if (windowForSend) {
-        windowForSend.webContents.send('new-project-result', { isOk: true });
+
+    const { win: winProjects } = require('../views/projects');
+    if (winProjects) {
+        winProjects.webContents.send('new-project-result', { isOk: true });
     }
 
     const appMenu = Menu.getApplicationMenu();
@@ -136,7 +135,8 @@ ipcMain.on("add-new-project", async (event, opts) => {
     appMenu.getMenuItemById('options').enabled = true;
     appMenu.getMenuItemById('new-record').enabled = config.canSaveRecords();
 
-    if (mainIsOpen) {
+    const { win: winCosmoscope } = require('../views/cosmoscope');
+    if (winCosmoscope) {
         require('../controllers/cosmoscope')();
     } else {
         require('../views/cosmoscope').open();

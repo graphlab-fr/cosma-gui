@@ -10,10 +10,7 @@ const ProjectConfig = require('../models/project-config')
     , config = new ProjectConfig()
     , lang = require('../core/models/lang');
 
-const Display = require('./display')
-    , Project = require('./project');
-
-let mainWindow;
+const Project = require('./project');
 
 const isMac = process.platform === 'darwin';
 
@@ -25,9 +22,9 @@ module.exports = [
                 label: lang.getFor(lang.i.app_menu.about),
                 role: 'about',
                 click () {
-                    mainWindow = Display.getWindow('main');
-                    if (mainWindow) {
-                        mainWindow.webContents.send("open-about");
+                    const { win: winCosmoscope } = require('../views/cosmoscope');
+                    if (winCosmoscope) {
+                        winCosmoscope.webContents.send("open-about");
                     }
                 }
             },
@@ -79,8 +76,8 @@ module.exports = [
                 id: 'new-cosmoscope',
                 enabled: config.canModelizeFromDirectory() || config.canModelizeFromCsvFiles() || config.canModelizeFromOnlineSync(),
                 click () {
-                    mainWindow = Display.getWindow('main');
-                    if (mainWindow) {
+                    const { win: winCosmoscope } = require('../views/cosmoscope');
+                    if (winCosmoscope) {
                         require('../controllers/cosmoscope')();
                     } else {
                         require('../views/cosmoscope').open();
@@ -103,8 +100,8 @@ module.exports = [
                 id: 'new-cosmoscope-fake',
                 visible: config.opts.devtools,
                 click () {
-                    mainWindow = Display.getWindow('main');
-                    if (mainWindow) {
+                    const { win: winCosmoscope } = require('../views/cosmoscope');
+                    if (winCosmoscope) {
                         require('../controllers/cosmoscope')(undefined, undefined, true);
                     } else {
                         require('../views/cosmoscope').open();
@@ -137,9 +134,9 @@ module.exports = [
                 role: 'print',
                 id: 'print',
                 click () {
-                    mainWindow = Display.getWindow('main');
-                    if (mainWindow) {
-                        mainWindow.focus();
+                    const { win: winCosmoscope } = require('../views/cosmoscope');
+                    if (winCosmoscope) {
+                        winCosmoscope.focus();
                         require('../controllers/print')();
                     }
                 }
@@ -261,10 +258,10 @@ module.exports = [
                 accelerator: 'CommandOrControl+Left',
                 role: 'back',
                 click () {
-                    mainWindow = Display.getWindow('main');
-                    if (mainWindow && mainWindow.webContents.canGoBack()) {
-                        mainWindow.focus();
-                        mainWindow.webContents.goBack();
+                    const { win: winCosmoscope } = require('../views/cosmoscope');
+                    if (winCosmoscope && winCosmoscope.webContents.canGoBack()) {
+                        winCosmoscope.focus();
+                        winCosmoscope.webContents.goBack();
                     };
                 }
             },
@@ -273,10 +270,10 @@ module.exports = [
                 accelerator: 'CommandOrControl+Right',
                 role: 'back',
                 click () {
-                    mainWindow = Display.getWindow('main');
-                    if (mainWindow && mainWindow.webContents.canGoForward()) {
-                        mainWindow.focus();
-                        mainWindow.webContents.goForward()
+                    const { win: winCosmoscope } = require('../views/cosmoscope');
+                    if (winCosmoscope && winCosmoscope.webContents.canGoForward()) {
+                        winCosmoscope.focus();
+                        winCosmoscope.webContents.goForward()
                     };
                 }
             },
@@ -336,9 +333,9 @@ module.exports = [
             {
                 label: lang.getFor(lang.i.app_menu.shortcuts),
                 click : () => {
-                    mainWindow = Display.getWindow('main');
-                    if (mainWindow) {
-                        mainWindow.webContents.send("open-help");
+                    const { win: winCosmoscope } = require('../views/cosmoscope');
+                    if (winCosmoscope) {
+                        winCosmoscope.webContents.send("open-help");
                     }
                 }
             }

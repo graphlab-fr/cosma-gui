@@ -13,20 +13,20 @@ const {
 
 const Display = require('../../models/display');
 
-let window;
-
 const pageName = 'main';
 
-module.exports = {
+const winCosmoscope = {
+    win: undefined,
+
     open: function () {
-        if (window !== undefined) {
-            window.focus();
+        if (this.win !== undefined) {
+            this.win.focus();
             return;
         }
 
         let windowSpecs = Display.getWindowSpecs(pageName);
 
-        window = new BrowserWindow(
+        this.win = new BrowserWindow(
             Object.assign(windowSpecs, {
                 webPreferences: {
                     preload: path.join(__dirname, './preload.js')
@@ -36,57 +36,61 @@ module.exports = {
         );
 
         if (windowSpecs.maximized === true) {
-            window.maximize(); }
+            this.win.maximize(); }
 
-        Display.storeSpecs(pageName, window);
+        Display.storeSpecs(pageName, this.win);
 
-        window.on('resized', () => {
-            Display.storeSpecs(pageName, window);
+        this.win.on('resized', () => {
+            Display.storeSpecs(pageName, this.win);
         });
 
-        window.on('moved', () => {
-            Display.storeSpecs(pageName, window);
+        this.win.on('moved', () => {
+            Display.storeSpecs(pageName, this.win);
         });
 
-        window.on('maximize', () => {
-            Display.storeSpecs(pageName, window);
+        this.win.on('maximize', () => {
+            Display.storeSpecs(pageName, this.win);
         });
 
-        window.on('unmaximize', () => {
+        this.win.on('unmaximize', () => {
             windowSpecs = Display.getWindowSpecs(pageName);
-            window.setSize(windowSpecs.width, windowSpecs.height, true);
-            window.setPosition(windowSpecs.x, windowSpecs.y, true);
-            Display.storeSpecs(pageName, window);
+            this.win.setSize(windowSpecs.width, windowSpecs.height, true);
+            this.win.setPosition(windowSpecs.x, windowSpecs.y, true);
+            Display.storeSpecs(pageName, this.win);
         });
 
         require('../../controllers/cosmoscope')(undefined, true);
 
-        window.once('close', () => {
+        this.win.once('close', () => {
             Display.emptyWindow(pageName);
         });
 
-        window.once('closed', () => {
-            window = undefined;
+        this.win.once('closed', () => {
+            this.win = undefined;
         });
 
-        window.webContents.on('will-navigate', function(e, url) {
+        this.win.webContents.on('will-navigate', function(e, url) {
             e.preventDefault();
             shell.openExternal(url);
         });
+
+        return this.win;
     }
 }
 
-ipcMain.on("askReload", () => { window.reload(); });
+module.exports = winCosmoscope;
+
+ipcMain.on("askReload", () => { winCosmoscope.win.reload(); });
 
 ipcMain.on("askBack", () => {
-    if (window.webContents.canGoBack()) {
-        window.webContents.goBack();
+    if (winCosmoscope.win.webContents.canGoBack()) {
+        this.win.webContents.goBack();
     };
 });
 
 ipcMain.on("askForward", () => {
-    if (window.webContents.canGoForward()) {
-        window.webContents.goForward();
+    if (winCosmoscope.win.webContents.canGoForward()) {
+        winCosmoscope.win.webContents.goForward();
     };
 });
 

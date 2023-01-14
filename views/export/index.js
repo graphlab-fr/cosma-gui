@@ -3,19 +3,19 @@ const { BrowserWindow } = require('electron')
 
 const lang = require('../../core/models/lang');
 
-let window;
-
 const pageName = 'export';
 
 module.exports = {
+    win: undefined,
+
     open: function () {
-        if (window !== undefined) {
+        if (this.win !== undefined) {
             return;
         }
 
         const Display = require('../../models/display');
 
-        window = new BrowserWindow(
+        this.win = new BrowserWindow(
             Object.assign(Display.getBaseSpecs('modal'), {
                 title: lang.getFor(lang.i.windows[pageName].title),
                 parent: Display.getWindow('main'),
@@ -26,17 +26,19 @@ module.exports = {
             })
         );
 
-        Display.storeSpecs('export', window);
+        Display.storeSpecs('export', this.win);
 
-        window.loadFile(path.join(__dirname, `/dist/${lang.flag}.html`));
+        this.win.loadFile(path.join(__dirname, `/dist/${lang.flag}.html`));
 
-        window.once('ready-to-show', () => {
-            window.show();
+        this.win.once('ready-to-show', () => {
+            this.win.show();
         });
 
-        window.once('closed', () => {
-            window = undefined;
-        });   
+        this.win.once('closed', () => {
+            this.win = undefined;
+        });
+
+        return this.win;
     },
 
     build: () => require('../build-page')(pageName, __dirname)

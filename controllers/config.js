@@ -9,8 +9,7 @@ const Config = require('../core/models/config')
     , Link = require('../core/models/link')
     , lang = require('../core/models/lang');
 
-const Display = require('../models/display')
-    , ProjectConfig = require('../models/project-config');
+const ProjectConfig = require('../models/project-config');
 
 ipcMain.on("get-default-config-options", (event) => {
     event.returnValue = Config.get(ProjectConfig.getDefaultConfigFilePath());
@@ -59,9 +58,9 @@ ipcMain.on("save-config-option", (event, name, value) => {
     config.save();
     event.returnValue = true;
 
-    let windowForSend = Display.getWindow('export');
-    if (windowForSend) {
-        windowForSend.webContents.send("config-change");
+    const { win: winExport } = require('../views/export');
+    if (winExport) {
+        winExport.webContents.send("config-change");
     }
 
     let appMenu;
@@ -125,9 +124,9 @@ ipcMain.on("save-config-option-recordsfilter", (event, meta, value, index, actio
         config.save();
         event.returnValue = true;
 
-        let windowForSend = Display.getWindow('config');
-        if (windowForSend) {
-            windowForSend.webContents.send("reset-config");
+        const { win: winConfig } = require('../views/config');
+        if (winConfig) {
+            winConfig.webContents.send("reset-config");
         }
     }
 });
@@ -179,13 +178,14 @@ ipcMain.on("save-config-option-typerecord", (event, name, nameInitial, fill, str
         config.save();
         event.returnValue = true;
 
-        let windowForSend = Display.getWindow('config');
-        if (windowForSend) {
-            windowForSend.webContents.send("reset-config");
+        const { win: winConfig } = require('../views/config');
+        if (winConfig) {
+            winConfig.webContents.send("reset-config");
         }
-        windowForSend = Display.getWindow('record');
-        if (windowForSend) {
-            windowForSend.webContents.send("config-change");
+
+        const { win: winRecord } = require('../views/record');
+        if (winRecord) {
+            winRecord.webContents.send("config-change");
         }
     }
 });
@@ -243,9 +243,9 @@ ipcMain.on("save-config-option-typelink", (event, name, nameInitial, color, stro
         config.save();
         event.returnValue = true;
 
-        const configWindow = Display.getWindow('config');
-        if (configWindow) {
-            configWindow.webContents.send("reset-config");
+        const { win: winConfig } = require('../views/config');
+        if (winConfig) {
+            winConfig.webContents.send("reset-config");
         }
     }
 });
@@ -304,14 +304,14 @@ ipcMain.on("save-config-option-view", (event, name, nameInitial, key, action) =>
         config.save();
         event.returnValue = true;
 
-        let window = Display.getWindow('config');
-        if (window) {
-            window.webContents.send("reset-config");
+        const { win: winConfig } = require('../views/config');
+        if (winConfig) {
+            winConfig.webContents.send("reset-config");
         }
 
-        window = Display.getWindow('main');
-        if (window) {
-            window.webContents.send("reset-views");
+        const { win: winCosmoscope } = require('../views/cosmoscope');
+        if (winCosmoscope) {
+            winCosmoscope.webContents.send("reset-views");
         }
     }
 });

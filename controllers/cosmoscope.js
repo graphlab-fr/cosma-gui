@@ -10,24 +10,19 @@ const Cosmoscope = require('../core/models/cosmoscope')
     , Template = require('../core/models/template')
     , lang = require('../core/models/lang');
 
-const Display = require('../models/display')
-    , History = require('../models/history')
+const History = require('../models/history')
     , ProjectConfig = require('../models/project-config')
     , Project = require('../models/project');
 
-// const { cosmocope } = require('../core/utils/generate')
-
-let windowPath;
-
 module.exports = async function (templateParams = [], runLast = false, fake = false) {
-    const window = Display.getWindow('main');
+    const { win } = require('../views/cosmoscope');
 
-    if (window === undefined) { return; }
+    if (win === undefined) { return; }
 
     if (fake) {
         const { cosmocope: generateFake, tempDirPath } = require('../core/utils/generate');
         const { graph } = await generateFake(tempDirPath);
-        window.loadFile(path.join(tempDirPath, 'cosmoscope.html'));
+        win.loadFile(path.join(tempDirPath, 'cosmoscope.html'));
         return;
     }
 
@@ -49,8 +44,8 @@ module.exports = async function (templateParams = [], runLast = false, fake = fa
     if (runLast === true && currentProject.history.size > 0) {
         const lastHistoryItemfromCurrentProject = Array.from(currentProject.history)[currentProject.history.size-1][1];
         const { path } = lastHistoryItemfromCurrentProject;
-        window.loadFile(path);
-        window.once('ready-to-show', () => window.show());
+        win.loadFile(path);
+        win.once('ready-to-show', () => win.show());
         return;
     }
 
@@ -132,8 +127,8 @@ module.exports = async function (templateParams = [], runLast = false, fake = fa
 
     fs.writeFile(historyPath, html, 'utf-8', (err) => {
         if (err) { throw new ErrorSaveCosmoscope("Can not save and open Cosmoscope"); }
-        window.loadFile(historyPath);
-        window.once('ready-to-show', () => { window.show(); });
+        win.loadFile(historyPath);
+        win.once('ready-to-show', () => { win.show(); });
 
         currentProject.history.set(historyId, new History(historyPath));
         fs.writeFile(reportPath, Report.getAsHtmlFile(), 'utf-8', (err) => {
@@ -141,9 +136,9 @@ module.exports = async function (templateParams = [], runLast = false, fake = fa
             currentProject.history.get(historyId).pathReport = reportPath;
         });
 
-        window.once('ready-to-show', () => {
+        win.once('ready-to-show', () => {
             setTimeout(() => {
-                window.capturePage()
+                win.capturePage()
                     .then((image) => {
                         const { width, height } = image.getSize();
                         image = image.crop({ x: 500, y: 0, width: width - 500, height: height - 100 })
@@ -155,10 +150,9 @@ module.exports = async function (templateParams = [], runLast = false, fake = fa
             }, 1000);
         });
 
-
-        windowHistory = Display.getWindow('history');
-        if (windowHistory) {
-            windowHistory.webContents.send("reset-history");
+        const { win: winHistory } = require('../views/history');
+        if (winHistory) {
+            winHistory.webContents.send("reset-history");
         }
     });
 

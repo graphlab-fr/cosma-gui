@@ -6,14 +6,14 @@ const {
 
 const lang = require('../../core/models/lang');
 
-let window;
-
 const pageName = 'doc';
 
 module.exports = {
+    win: undefined,
+
     open: function () {
-        if (window !== undefined) {
-            window.focus();
+        if (this.win !== undefined) {
+            this.win.focus();
             return;
         }
 
@@ -21,7 +21,7 @@ module.exports = {
 
         let windowSpecs = Display.getWindowSpecs(pageName);
 
-        window = new BrowserWindow(
+        this.win = new BrowserWindow(
             Object.assign(windowSpecs, {
                 title: lang.getFor(lang.i.windows[pageName].title),
                 webPreferences: {
@@ -31,46 +31,48 @@ module.exports = {
         );
 
         if (windowSpecs.maximized === true) {
-            window.maximize(); }
+            this.win.maximize(); }
 
-        Display.storeSpecs(pageName, window);
+        Display.storeSpecs(pageName, this.win);
 
-        window.on('resized', () => {
-            Display.storeSpecs(pageName, window);
+        this.win.on('resized', () => {
+            Display.storeSpecs(pageName, this.win);
         });
 
-        window.on('moved', () => {
-            Display.storeSpecs(pageName, window);
+        this.win.on('moved', () => {
+            Display.storeSpecs(pageName, this.win);
         });
 
-        window.on('maximize', () => {
-            Display.storeSpecs(pageName, window);
+        this.win.on('maximize', () => {
+            Display.storeSpecs(pageName, this.win);
         });
 
-        window.on('unmaximize', () => {
+        this.win.on('unmaximize', () => {
             windowSpecs = Display.getWindowSpecs(pageName);
-            window.setSize(windowSpecs.width, windowSpecs.height, true);
-            window.setPosition(windowSpecs.x, windowSpecs.y, true);
-            Display.storeSpecs(pageName, window);
+            this.win.setSize(windowSpecs.width, windowSpecs.height, true);
+            this.win.setPosition(windowSpecs.x, windowSpecs.y, true);
+            Display.storeSpecs(pageName, this.win);
         });
 
-        window.loadFile(path.join(__dirname, `../../docs/${lang.getFor(lang.i.windows[pageName].src)}`));
+        this.win.loadFile(path.join(__dirname, `../../docs/${lang.getFor(lang.i.windows[pageName].src)}`));
 
-        window.once('ready-to-show', () => {
-            window.show();
+        this.win.once('ready-to-show', () => {
+            this.win.show();
         });
 
-        window.once('close', () => {
+        this.win.once('close', () => {
             Display.emptyWindow(pageName);
         });
 
-        window.once('closed', () => {
-            window = undefined;
+        this.win.once('closed', () => {
+            this.win = undefined;
         });
 
-        window.webContents.on('will-navigate', function(e, url) {
+        this.win.webContents.on('will-navigate', function(e, url) {
             e.preventDefault();
             shell.openExternal(url);
         });
+
+        return this.win;
     }
 }

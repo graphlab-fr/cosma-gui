@@ -8,20 +8,20 @@ const {
 
 const lang = require('../../core/models/lang');
 
-let window;
-
 const pageName = 'view';
 
 module.exports = {
+    win: undefined,
+
     open: function (viewName, action) {
-        if (window !== undefined) {
-            window.focus();
+        if (this.win !== undefined) {
+            this.win.focus();
             return;
         }
 
         const Display = require('../../models/display');
 
-        window = new BrowserWindow(
+        this.win = new BrowserWindow(
             Object.assign(Display.getBaseSpecs('modal'), {
                 title: lang.getFor(lang.i.windows[pageName].title[action]),
                 parent: Display.getWindow('main'),
@@ -31,14 +31,14 @@ module.exports = {
             })
         );
         
-        window.loadFile(path.join(__dirname, `/dist/${lang.flag}.html`));
+        this.win.loadFile(path.join(__dirname, `/dist/${lang.flag}.html`));
 
-        window.once('ready-to-show', () => {
-            window.show();
+        this.win.once('ready-to-show', () => {
+            this.win.show();
         });
 
-        window.once('closed', () => {
-            window = undefined;
+        this.win.once('closed', () => {
+            this.win = undefined;
         });
 
         ipcMain.once("get-view-name", (event) => {
@@ -55,12 +55,12 @@ module.exports = {
         });
 
         ipcMain.once("close", (event) => {
-            if (window !== undefined) {
-                window.close();
+            if (this.win !== undefined) {
+                this.win.close();
             }
         });
 
-        return window;
+        return this.win;
     },
 
     build: () => require('../build-page')(pageName, __dirname)

@@ -6,20 +6,20 @@ const {
 
 const lang = require('../../core/models/lang');
 
-let window;
-
 const pageName = 'record';
 
 module.exports = {
+    win: undefined,
+
     open: function () {
-        if (window !== undefined) {
-            window.focus();
+        if (this.win !== undefined) {
+            this.win.focus();
             return;
         }
 
         const Display = require('../../models/display');
 
-        window = new BrowserWindow(
+        this.win = new BrowserWindow(
             Object.assign(Display.getBaseSpecs('modal'), {
                 title: lang.getFor(lang.i.windows[pageName].title),
                 parent: Display.getWindow('main'),
@@ -29,17 +29,19 @@ module.exports = {
             })
         );
 
-        Display.storeSpecs('record', window);
+        Display.storeSpecs('record', this.win);
 
-        window.loadFile(path.join(__dirname, `/dist/${lang.flag}.html`));
+        this.win.loadFile(path.join(__dirname, `/dist/${lang.flag}.html`));
 
-        window.once('ready-to-show', () => {
-            window.show();
+        this.win.once('ready-to-show', () => {
+            this.win.show();
         });
 
-        window.once('closed', () => {
-            window = undefined;
+        this.win.once('closed', () => {
+            this.win = undefined;
         });
+
+        return this.win;
     },
 
     build: () => require('../build-page')(pageName, __dirname)

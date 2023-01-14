@@ -2,25 +2,23 @@ const { app, dialog } = require('electron')
     , fs = require('fs')
     , path = require('path');
 
-const Display = require('../models/display');
-
 const lang = require('../core/models/lang');
 
 module.exports = function () {
-    const mainWindow = Display.getWindow('main');
+    const { win: winCosmoscope } = require('../views/cosmoscope');
 
-    if (mainWindow === undefined) { return; }
+    if (winCosmoscope === undefined) { return; }
 
-    mainWindow.webContents.printToPDF({
+    winCosmoscope.webContents.printToPDF({
         headerFooter: {
-            title: mainWindow.title,
+            title: winCosmoscope.title,
             url: 'https://cosma.graphlab.fr/'},
             pageSize: 'A4'
         })
         .then(pdfData => {
-            dialog.showSaveDialog(mainWindow, {
+            dialog.showSaveDialog(winCosmoscope, {
                 title: lang.getFor(lang.i.dialog.print.title),
-                defaultPath: path.join(app.getPath('documents'), `${mainWindow.title}.pdf`),
+                defaultPath: path.join(app.getPath('documents'), `${winCosmoscope.title}.pdf`),
                 properties: ['createDirectory', 'showOverwriteConfirmation']
             }).then((response) => {
                 if (response.canceled === true) { return; }
