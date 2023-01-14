@@ -19,10 +19,12 @@ module.exports = {
             return;
         }
 
+        const { win: parent } = require('../history');
+
         this.win = new BrowserWindow(
             Object.assign(Display.getBaseSpecs('form'), {
                 title: `${lang.getFor(lang.i.windows[pageName].title)}`,
-                parent: Display.getWindow('history'),
+                parent,
                 width: 700,
                 height: 700,
                 webPreferences: {

@@ -20,10 +20,12 @@ module.exports = {
 
         const Display = require('../../models/display');
 
+        const { win: parent } = require('../projects');
+
         this.win = new BrowserWindow(
             Object.assign(Display.getBaseSpecs('modal'), {
                 title: lang.getFor(lang.i.windows[pageName].title),
-                parent: Display.getWindow('projects'),
+                parent,
                 webPreferences: {
                     preload: path.join(__dirname, './preload.js')
                 }
