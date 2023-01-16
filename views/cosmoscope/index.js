@@ -62,7 +62,7 @@ const winCosmoscope = {
         require('../../controllers/cosmoscope')(undefined, true);
 
         this.win.once('close', () => {
-            Display.emptyWindow(pageName);
+            Display.emptyWindowDisplay(pageName);
         });
 
         this.win.once('closed', () => {

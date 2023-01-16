@@ -43,7 +43,7 @@ module.exports = {
             Display.storeSpecs(pageName, this.win);
         });
 
-        this.win.on('moved', () => {
+        this.win.on('move', () => {
             Display.storeSpecs(pageName, this.win);
         });
 
@@ -65,7 +65,7 @@ module.exports = {
         });
 
         this.win.once('close', () => {
-            Display.emptyWindow(pageName);
+            Display.emptyWindowDisplay(pageName);
         });
 
         this.win.once('closed', () => {

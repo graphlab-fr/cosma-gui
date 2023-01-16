@@ -19,12 +19,7 @@ module.exports = class Display {
      * @type object
      */
 
-    static windows = {
-        main: undefined,
-        config: undefined,
-        record: undefined,
-        projects: undefined
-    };
+    static windows = {};
 
     static windowsType = {
         main: 'main',
@@ -106,27 +101,16 @@ module.exports = class Display {
     }
 
     /**
-     * Get a window by its name from Display.windows
-     * @param {string} windowName - key from Display.windows
-     * @return {class BrowserWindow}
-     */
-
-    static getWindow (windowName) {
-        return BrowserWindow.getAllWindows()
-            .find(window => window.id === Display.windows[windowName]?.id)
-    }
-
-    /**
      * Get specs of a window by its name from Display.windows
      * @param {string} windowName - key from Display.windows
      * @return {object}
      */
 
     static getWindowSpecs (windowName) {
-        return Object.assign({},
-            Display.getBaseSpecs(Display.windowsType[windowName]),
-            Display.getDisplaying()[windowName]
-        );
+        // console.log(Display.windows[windowName]);
+        return {
+            ...Display.windows[windowName]
+        };
     }
 
     /**
@@ -134,9 +118,9 @@ module.exports = class Display {
      * @param {string} windowName - key from Display.windows
      */
 
-    static emptyWindow (windowName) {
+    static emptyWindowDisplay (windowName) {
         Display.saveDisplaying();
-        delete Display.windows[windowName].id;
+        delete Display.windows[windowName];
     }
 
     /**
@@ -158,6 +142,8 @@ module.exports = class Display {
 
         let data = fs.readFileSync(Display.filePath);
         data = JSON.parse(data);
+
+        // console.log(data);
 
         return data;
     }
