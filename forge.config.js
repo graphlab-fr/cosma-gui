@@ -1,9 +1,10 @@
-const packageConfig = require('./package.json')
+const packageConfig = require('./package.json');
+const {execute} = require('./utils/webpack');
 
 module.exports = {
   hooks: {
     generateAssets: async () => {
-      require('./controllers/build-pages');
+      await execute().catch(console.error);
     }
   },
   packagerConfig: {

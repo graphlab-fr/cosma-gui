@@ -1,33 +1,35 @@
 const {
-        app, // app event lifecycle, events
-        BrowserWindow, // app windows generator
-        Menu,
-        dialog
-    } = require('electron');
+    app, // app event lifecycle, events
+    BrowserWindow, // app windows generator
+    Menu,
+    dialog
+} = require('electron');
 
-process.on('uncaughtException', ({ name, message, stack }) => {
-    switch (name) {
-        case 'Error Project':
-            Project.init();
-            app.relaunch();
-            app.exit();
-            break;
+const { startServer } = require('./utils/webpack');
 
-        case 'Error save Cosmocope':
-        case 'Error History':
-            /**  @todo Reset config  */
-            new History().deleteAll();
-            break;
-    
-        default:
-            dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
-                title: name,
-                message: message + "\n\n" + stack,
-                type: 'error',
-            });
-            break;
-    }
-})
+// process.on('uncaughtException', ({ name, message, stack }) => {
+//     switch (name) {
+//         case 'Error Project':
+//             Project.init();
+//             app.relaunch();
+//             app.exit();
+//             break;
+
+//         case 'Error save Cosmocope':
+//         case 'Error History':
+//             /**  @todo Reset config  */
+//             new History().deleteAll();
+//             break;
+
+//         default:
+//             dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
+//                 title: name,
+//                 message: message + "\n\n" + stack,
+//                 type: 'error',
+//             });
+//             break;
+//     }
+// })
 
 const History = require('./models/history');
 const Project = require('./models/project');
@@ -36,37 +38,44 @@ const Config = require('./core/models/config');
 const ProjectConfig = require('./models/project-config');
 const Preferences = require('./models/preferences');
 
+const windowConfig = require('./views/config')
+
 /**
  * Wait for 'app ready' event, before lauch the window.
  */
 
-Promise.all([app.whenReady(), Project.init(), ProjectConfig.init(), Preferences.init()])
+Promise.all([app.whenReady(), startServer(), Project.init(), ProjectConfig.init(), Preferences.init()])
     .then(() => {
-        // need to edit flag from default config
-        lang.flag = Preferences.get().lang;
 
-        if (Project.current !== undefined) {
-            require('./views/cosmoscope').open();
-        } else {
-            require('./views/projects').open();
-        }
-    
-        const menuTemplate = require('./models/menu');
-        const appMenu = Menu.buildFromTemplate(menuTemplate)
-        Menu.setApplicationMenu(appMenu);
-    
         require('./controllers');
-    
+
+        windowConfig.open()
+
+        // need to edit flag from default config
+        // lang.flag = Preferences.get().lang;
+
+        // if (Project.current !== undefined) {
+        //     require('./views/cosmoscope').open();
+        // } else {
+        //     require('./views/projects').open();
+        // }
+
+        // const menuTemplate = require('./models/menu');
+        // const appMenu = Menu.buildFromTemplate(menuTemplate)
+        // Menu.setApplicationMenu(appMenu);
+
+        // 
+
         /**
          * MacOS apps generally continue running even without any windows open.
          * Activating the app when no windows are available should open a new one.
          */
-    
-        app.on('activate', () => {
-            if (BrowserWindow.getAllWindows().length === 0) {
-                require('./views/cosmoscope').open();
-            }
-        });
+
+        // app.on('activate', () => {
+        //     if (BrowserWindow.getAllWindows().length === 0) {
+        //         require('./views/cosmoscope').open();
+        //     }
+        // });
     })
 
 app.on('will-quit', function (e) {
@@ -88,5 +97,6 @@ app.on('will-quit', function (e) {
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') { // except on MacOs
-        app.quit(); }
+        app.quit();
+    }
 });
