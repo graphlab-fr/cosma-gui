@@ -15,10 +15,10 @@ const History = require('./history');
 module.exports = class Project {
     static filePath = path.join(app.getPath('userData'), 'projects.json');
 
-    /** @type {Map<number, Project>} */
+    /** @type {Map<string, Project>} */
     static list = new Map();
 
-    /** @type {number|undefined} */
+    /** @type {string|undefined} */
     static current = undefined;
 
     static getCurrent() {
@@ -47,7 +47,7 @@ module.exports = class Project {
                             const history = new Map();
                             for (const [id, { path, description, isTemp, date }] of Object.entries(token.history)) {
                                 if (fs.existsSync(path) === false) { continue; }
-                                history.set(Number(id), new History(path, description, isTemp, date));
+                                history.set(id, new History(path, description, isTemp, date));
                             }
                             Project.list.set(i, new Project(
                                 token.opts,

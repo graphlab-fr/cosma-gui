@@ -18,8 +18,6 @@ const form = document.querySelector('form');
         if (data.history_record === undefined) {
             return; }
 
-        data.history_record = Number(data.history_record);
-
         switch (action) {
             case 'update':
                 window.api.openModalHistoryRecordRename(data.history_record);
