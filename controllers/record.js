@@ -9,9 +9,9 @@ const Record = require('../core/models/record')
 
 const ProjectConfig = require('../models/project-config');
 
-ipcMain.on("record-add", (event, title, type, tags) => {
+ipcMain.on("record-add", (event, title, types, tags) => {
     const projectOpts = new ProjectConfig().opts;
-    const record = new Record(undefined, title, type, tags, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, projectOpts);
+    const record = new Record(undefined, title, types, tags, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, projectOpts);
 
     const window = BrowserWindow.getFocusedWindow();
     
