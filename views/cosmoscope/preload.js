@@ -55,7 +55,9 @@ function menu () {
     btnBack.addEventListener('click', back);
     btnForward.addEventListener('click', forward);
     btnShare.addEventListener('click', share);
-    btnRecordNew.addEventListener('click', recordNew);
+    if (btnRecordNew){
+        btnRecordNew.addEventListener('click', recordNew);
+    }
     btnCosmoscopeNew.addEventListener('click', cosmoscopeNew);
 }
 
